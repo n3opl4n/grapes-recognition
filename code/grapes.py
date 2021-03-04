@@ -42,6 +42,7 @@ from mrcnn import config
 from mrcnn.config import Config
 from mrcnn import utils
 from mrcnn import model as modellib
+from mrcnn import visualize
 
 # Path to trained weights file
 COCO_WEIGHTS_PATH = os.path.join(ROOT_DIR, "mask_rcnn_coco.h5")
@@ -225,13 +226,12 @@ def train(model):
                 epochs=30,
                 layers='heads')
 
-"""
 def color_splash(image, mask):
-    ""Apply color splash effect.
-    image: RGB image [height, width, 3]
-    mask: instance segmentation mask [height, width, instance count]
-    Returns result image.
-    ""
+    # ""Apply color splash effect.
+    # image: RGB image [height, width, 3]
+    # mask: instance segmentation mask [height, width, instance count]
+    # Returns result image.
+    # ""
 
     # Make a grayscale copy of the image. The grayscale copy still
     # has 3 RGB channels, though.
@@ -245,6 +245,46 @@ def color_splash(image, mask):
         splash = gray
     return splash
 
+def detect(model, image_path=None):
+    assert image_path
+
+    # Image
+    if image_path:
+        # Run model detection and generate the color splash effect
+        print("Running on {}".format(args.image))
+        # Read image
+        image = skimage.io.imread(args.image)
+        # Detect objects
+        r = model.detect([image], verbose=1)[0]
+
+        class_names = ["BG", "grape"]
+
+        visualize.display_instances(image, r['rois'], r['masks'], r['class_ids'],
+                                    class_names, r['scores'])
+
+def detect_online(model, image_path=None):
+    assert image_path
+
+    # Image
+    if image_path:
+        # Run model detection and generate the color splash effect
+        print("Running on {}".format(args.image))
+        # Read image
+
+        handle = visualize.make_plot() #create the figure and then update the instances in the loop below
+
+        # the idea is that if the file changes, the plot changes as well [badly implemented at the moment]
+        for x in range(10):
+            image = skimage.io.imread(args.image)
+            # Detect objects
+            r = model.detect([image], verbose=1)[0]
+
+            class_names = ["BG", "grape"]
+
+            visualize.display_instances(image, r['rois'], r['masks'], r['class_ids'],
+                                        class_names, r['scores'], ax=handle)
+
+            
 
 def detect_and_color_splash(model, image_path=None, video_path=None):
     assert image_path or video_path
@@ -296,7 +336,6 @@ def detect_and_color_splash(model, image_path=None, video_path=None):
                 count += 1
         vwriter.release()
     print("Saved to ", file_name)
-"""
 
 ############################################################
 #  Training
@@ -389,6 +428,10 @@ if __name__ == '__main__':
     # Train or evaluate
     if args.command == "train":
         train(model)
+    elif args.command == "detect":
+        detect(model, image_path=args.image)
+    elif args.command == "detect_online":
+        detect_online(model, image_path=args.image)
     elif args.command == "splash":
         detect_and_color_splash(model, image_path=args.image,
                                 video_path=args.video)
