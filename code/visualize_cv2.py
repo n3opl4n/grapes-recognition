@@ -90,26 +90,30 @@ if __name__ == '__main__':
     """
 
     args = sys.argv
-    if (len(args)<2):
-        print("Run: python code/video.py video_path")
-        sys.exit(0)
-    if (len(args[1])==1): name = int(args[1])
-    else: name = args[1]
 
-    capture = cv2.VideoCapture(name)
-    size = (int(capture.get(3)), int(capture.get(4)))
+    if (len(args)<2): #use webcam
+        capture = cv2.VideoCapture(0)
+        showprogress = 0
+    else:
+        if (len(args[1])==1): name = int(args[1])
+        else: name = args[1]
+        showprogress = 1
+    
 
-    fourcc = cv2.VideoWriter_fourcc(*'XVID')
-    out = cv2.VideoWriter('output.avi', fourcc, 20.0, size)
-    length = int(capture.get(cv2.CAP_PROP_FRAME_COUNT))
+        capture = cv2.VideoCapture(name)
+        # size = (int(capture.get(3)), int(capture.get(4)))
+
+        # fourcc = cv2.VideoWriter_fourcc(*'XVID')
+        # out = cv2.VideoWriter('output.avi', fourcc, 20.0, size)
+        length = int(capture.get(cv2.CAP_PROP_FRAME_COUNT))
 
 
     # these 2 lines can be removed if you dont have a 1080p camera.
-    capture.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-    capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+    # capture.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+    # capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
 
     print("Predicting video...")
-    printProgressBar(0,length, prefix = 'Progress:', suffix = 'Complete', length = 50)
+    if showprogress: printProgressBar(0,length, prefix = 'Progress:', suffix = 'Complete', length = 50)
     i = 0
     while True:
         ret, frame = capture.read()
@@ -118,19 +122,22 @@ if __name__ == '__main__':
             #print("unable to fetch")
             break
 
-        results = model.detect([frame], verbose=0)
-        r = results[0]
-        frame = display_instances(
-            frame, r['rois'], r['masks'], r['class_ids'], class_names, r['scores']
-        )
-        #cv2.imshow('frame', frame)
-        out.write(frame)
+        if (i % 30 == 0): #reduce framerate
+            results = model.detect([frame], verbose=0)
+            r = results[0]
+            frame = display_instances(
+                frame, r['rois'], r['masks'], r['class_ids'], class_names, r['scores']
+            )
+            cv2.imshow('frame', frame)
+        
+        # out.write(frame)
+        
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
-        printProgressBar(i+1,length, prefix = 'Progress:', suffix = 'Complete', length = 50)
+        if showprogress: printProgressBar(i+1,length, prefix = 'Progress:', suffix = 'Complete', length = 50)
         i = i + 1
 
     capture.release()
-    out.release()
+    # out.release()
     cv2.destroyAllWindows()

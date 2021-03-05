@@ -261,6 +261,7 @@ def detect(model, image_path=None):
 
         visualize.display_instances(image, r['rois'], r['masks'], r['class_ids'],
                                     class_names, r['scores'])
+        visualize.plot_show()
 
 def detect_online(model, image_path=None):
     assert image_path

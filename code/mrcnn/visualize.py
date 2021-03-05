@@ -167,6 +167,9 @@ def display_instances(image, boxes, masks, class_ids, class_names,
     # if auto_show:
     #     plt.show()
 
+def plot_show():
+    plt.show()
+
 def make_plot(figsize=(16, 16)):
     print("Making plot...")
     _, ax = plt.subplots(1, figsize=figsize)
