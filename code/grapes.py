@@ -254,18 +254,27 @@ def detect(model, image_path=None):
         # Run model detection and generate the color splash effect
         print("Running on {}".format(args.image))
         # Read image
+<<<<<<< HEAD
         t0 = time.clock()
+=======
+>>>>>>> 5f34e41b8dee6e5077666cfeda7b525c764ad51d
         image = skimage.io.imread(args.image)
         # Detect objects
         r = model.detect([image], verbose=1)[0]
 
         class_names = ["BG", "grape"]
+<<<<<<< HEAD
         t1 = time.clock()
         visualize.display_instances(image, r['rois'], r['masks'], r['class_ids'],
                                     class_names, r['scores'])
         t2 = time.clock()
         print("Took ", t1-t0, "s to detect and ", t2-t1, "s to display")
         visualize.plot_show()
+=======
+
+        visualize.display_instances(image, r['rois'], r['masks'], r['class_ids'],
+                                    class_names, r['scores'])
+>>>>>>> 5f34e41b8dee6e5077666cfeda7b525c764ad51d
 
 def detect_online(model, image_path=None):
     assert image_path
