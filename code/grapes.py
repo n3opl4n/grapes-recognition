@@ -23,6 +23,7 @@ import os
 import sys
 import json
 import datetime
+import time
 import numpy as np
 import skimage.draw
 from numpy import load
@@ -253,14 +254,17 @@ def detect(model, image_path=None):
         # Run model detection and generate the color splash effect
         print("Running on {}".format(args.image))
         # Read image
+        t0 = time.clock()
         image = skimage.io.imread(args.image)
         # Detect objects
         r = model.detect([image], verbose=1)[0]
 
         class_names = ["BG", "grape"]
-
+        t1 = time.clock()
         visualize.display_instances(image, r['rois'], r['masks'], r['class_ids'],
                                     class_names, r['scores'])
+        t2 = time.clock()
+        print("Took ", t1-t0, "s to detect and ", t2-t1, "s to display")
         visualize.plot_show()
 
 def detect_online(model, image_path=None):
