@@ -255,17 +255,18 @@ def detect(model, image_path=None):
         print("Running on {}".format(args.image))
         # Read image
 
-        t0 = time.clock()
+        t0 = time.perf_counter()
 
         image = skimage.io.imread(args.image)
         # Detect objects
         r = model.detect([image], verbose=1)[0]
 
+        print(r)
         class_names = ["BG", "grape"]
-        t1 = time.clock()
+        t1 = time.perf_counter()
         visualize.display_instances(image, r['rois'], r['masks'], r['class_ids'],
                                     class_names, r['scores'])
-        t2 = time.clock()
+        t2 = time.perf_counter()
         print("Took ", t1-t0, "s to detect and ", t2-t1, "s to display")
         visualize.plot_show()
 
